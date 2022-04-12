@@ -7,7 +7,16 @@
 
 import UIKit
 
+protocol KeyBoardViewControllerDelegate: AnyObject {
+    func keyBoardViewController (
+        _ vc: KeyBoardViewController,
+        didTapKey letter: Character
+    )
+}
+
 class KeyBoardViewController: UIViewController, UICollectionViewDelegateFlowLayout, UICollectionViewDelegate, UICollectionViewDataSource {
+    
+    weak var delegate: KeyBoardViewControllerDelegate?
     
     let letters = ["qwertyuiop", "asdfghjkl", "zxcvbnm"]
     private var keys: [[Character]] = []
@@ -17,7 +26,7 @@ class KeyBoardViewController: UIViewController, UICollectionViewDelegateFlowLayo
         layout.minimumInteritemSpacing = 2
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.backgroundColor = .yellow
+        collectionView.backgroundColor = .clear
         collectionView.register(KeyCell.self, forCellWithReuseIdentifier: KeyCell.identifier)
         return collectionView
     }()
@@ -30,7 +39,7 @@ class KeyBoardViewController: UIViewController, UICollectionViewDelegateFlowLayo
         NSLayoutConstraint.activate([
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.topAnchor.constraint(equalTo: view.topAnchor),
+            collectionView.topAnchor.constraint(equalTo: view.topAnchor, constant: 30),
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
         
@@ -54,6 +63,8 @@ extension KeyBoardViewController {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: KeyCell.identifier, for: indexPath) as? KeyCell else {
             fatalError()
         }
+        let letter = keys[indexPath.section][indexPath.row]
+        cell.configure(with: letter)
         return cell
     }
     
@@ -80,6 +91,8 @@ extension KeyBoardViewController {
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        //
+        collectionView.deselectItem(at: indexPath, animated: true)
+        let letter = keys[indexPath.section][indexPath.row]
+        delegate?.keyBoardViewController(self, didTapKey: letter)
     }
 }
