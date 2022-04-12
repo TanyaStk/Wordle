@@ -9,6 +9,7 @@ import UIKit
 
 protocol BoardViewControllerDatasource: AnyObject {
     var currentGuesses: [[Character?]] { get }
+    func boxColor(at indexPath: IndexPath) -> UIColor?
 }
 
 class BoardViewController: UIViewController, UICollectionViewDelegateFlowLayout, UICollectionViewDelegate, UICollectionViewDataSource {
@@ -39,7 +40,7 @@ class BoardViewController: UIViewController, UICollectionViewDelegateFlowLayout,
     }
     
     public func reloadData() {
-        
+        collectionView.reloadData()
     }
 }
 
@@ -57,7 +58,8 @@ extension BoardViewController {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: KeyCell.identifier, for: indexPath) as? KeyCell else {
             fatalError()
         }
-        cell.contentView.backgroundColor = nil
+        
+        cell.contentView.backgroundColor = datasource?.boxColor(at: indexPath)
         cell.layer.borderWidth = 1
         cell.layer.borderColor = UIColor.systemGray3.cgColor
         
@@ -65,12 +67,15 @@ extension BoardViewController {
         if let letter = guesses[indexPath.section][indexPath.row] {
             cell.configure(with: letter)
         }
+        
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+
         let margin: CGFloat = 20
         let size: CGFloat = (collectionView.frame.size.width - margin) / 5
+        
         return CGSize(width: size, height: size)
     }
     
